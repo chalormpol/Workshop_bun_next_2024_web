@@ -37,8 +37,8 @@ export default function Home() {
 
       if (response.data.token !== undefined) {
         localStorage.setItem(apiConfig.tokenKey, response.data.token);
-        localStorage.setItem("bun_service_name", response.data.username);
-        localStorage.setItem("bun_service_level", response.data.level);
+        localStorage.setItem("bun_service_name", response.data.user.username);
+        localStorage.setItem("bun_service_level", response.data.user.level);
 
         router.push("/backoffice/dashboard");
       } else {
