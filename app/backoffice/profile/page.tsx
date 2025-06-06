@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { apiConfig } from "../../apiConfig";
+import { apiConfig } from "@/app/apiConfig";
 import axios from "axios";
 
 export default function Page() {
@@ -14,14 +14,6 @@ export default function Page() {
     if (username == "") {
       Swal.fire({
         title: "กรุณาระบุชื่อผู้ใช้งาน",
-        icon: "error",
-      });
-      return;
-    }
-
-    if (password == "") {
-      Swal.fire({
-        title: "กรุณาระบุรหัสผ่าน",
         icon: "error",
       });
       return;

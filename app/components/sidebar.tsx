@@ -4,12 +4,12 @@ export default function Sidebar() {
   const menuItems = [
     {
       title: "Dashboard",
-      href: "/dashboard",
+      href: "/backoffice/dashboard",
       icon: "fa-solid fa-chart-simple",
     },
     {
       title: "พนักงานร้าน",
-      href: "/dashboard/users",
+      href: "/backoffice/user",
       icon: "fa-solid fa-users",
     },
     {
@@ -34,7 +34,7 @@ export default function Sidebar() {
     },
     {
       title: "ทะเบียนวัสดุ อุปกรณ์",
-      href: "/dashboard/devices",
+      href: "/backoffice/device",
       icon: "fa-solid fa-box",
     },
     {
