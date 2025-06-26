@@ -3,7 +3,7 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  size?: "sm" | "md" | "lg";
+  size?: "md" | "lg" | "xl";
 }
 
 export default function Modal({
@@ -16,9 +16,9 @@ export default function Modal({
   if (!isOpen) return null;
 
   const sizeClasses = {
-    sm: "max-w-md", // 28rem = 448px
     md: "max-w-lg", // 32rem = 512px
     lg: "max-w-xl", // 36rem = 576px
+    xl: "max-w-2xl", // 40rem = 640px
   }[size];
 
   return (

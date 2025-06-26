@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { apiConfig } from "@/app/apiConfig";
 import Modal from "@/app/components/modal";
@@ -15,22 +15,66 @@ export default function Page() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [level, setLevel] = useState("admin");
+  const [departments, setDepartments] = useState<Department[]>([]);
+  const [sections, setSections] = useState<Section[]>([]);
+  const [sectionId, setSectionId] = useState("");
+  const [departmentId, setDepartmentId] = useState("");
 
   interface User {
     id: string;
     username: string;
-    password: string;
     level: string;
+    Section: {
+      id: string;
+      name: string;
+      department: {
+        id: string;
+        name: string;
+      };
+    };
   }
+
+  interface Department {
+    id: string;
+    name: string;
+  }
+
+  interface Section {
+    id: string;
+    name: string;
+  }
+
+  const fetchSections = useCallback(async (departmentId: string) => {
+    const response = await axios.get(
+      `${apiConfig.apiUrl}/api/section/listByDepartment/${departmentId}`
+    );
+    setSections(response.data);
+    setSectionId(response.data[0].id);
+  }, []);
+
+  const fetchDepartments = useCallback(async () => {
+    const response = await axios.get(`${apiConfig.apiUrl}/api/department/list`);
+    setDepartments(response.data);
+    const firstId = response.data[0].id;
+    setDepartmentId(firstId);
+    fetchSections(firstId);
+    return response.data;
+  }, [fetchSections]);
+
+  const handleChangeDepartment = (departmentId: string) => {
+    setDepartmentId(departmentId);
+    fetchSections(departmentId);
+  };
+
+  const fetchUsers = useCallback(async () => {
+    const response = await axios.get(`${apiConfig.apiUrl}/api/user/list`);
+    setUsers(response.data.users);
+  }, []);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
-
-  const fetchUsers = async () => {
-    const response = await axios.get(`${apiConfig.apiUrl}/api/user/list`);
-    setUsers(response.data.users);
-  };
+    fetchDepartments();
+  }, [fetchDepartments, fetchUsers]);
 
   const handleShowModal = () => {
     setShowModal(true);
@@ -62,6 +106,7 @@ export default function Page() {
         username: username,
         password: password,
         level: level,
+        sectionId: parseInt(sectionId + ""),
       };
 
       if (id == "") {
@@ -95,11 +140,12 @@ export default function Page() {
           error.response?.data?.message ||
           error.response?.data?.error ||
           error.message;
+        const status = error.response?.status;
 
         Swal.fire({
           icon: "error",
           title: "มีข้อผิดพลาด",
-          text: msg,
+          text: `${msg} (Status: ${status})`,
         });
       } else {
         const msg = error instanceof Error ? error.message : String(error);
@@ -112,13 +158,22 @@ export default function Page() {
     }
   };
 
-  const handleEdit = (user: User) => {
+  const handleEdit = async (user: User) => {
     setId(user.id);
     setUsername(user.username);
     setPassword("");
     setConfirmPassword("");
     setLevel(user.level);
     setShowModal(true);
+
+    const selectedDepartmentId =
+      user?.Section?.department?.id ?? (departments[0] as Department).id;
+    setDepartmentId(selectedDepartmentId);
+
+    await fetchSections(selectedDepartmentId);
+
+    const sectionId = user?.Section?.id;
+    setSectionId(sectionId);
   };
 
   const handleDelete = async (id: string) => {
@@ -169,7 +224,9 @@ export default function Page() {
         <thead>
           <tr>
             <th>ชื่อผู้ใช้งาน</th>
-            <th style={{ width: "100px" }}>ระดับ</th>
+            <th>เเผนก</th>
+            <th>ฝ่าย</th>
+            <th style={{ width: "100px" }}>Level</th>
             <th className="text-center" style={{ width: "220px" }}></th>
           </tr>
         </thead>
@@ -177,6 +234,8 @@ export default function Page() {
           {users.map((user) => (
             <tr key={user.id}>
               <td>{user.username}</td>
+              <td>{user?.Section?.department?.name}</td>
+              <td>{user?.Section?.name}</td>
               <td>{user.level}</td>
               <td className="text-center">
                 <button className="btn-edit" onClick={() => handleEdit(user)}>
@@ -198,7 +257,38 @@ export default function Page() {
         isOpen={showModal}
         onClose={handleCloseModal}
       >
-        <div className="">Username</div>
+        <div className="flex gap-4">
+          <div className="w-1/2">
+            <div className="mb-2">เเผนก</div>
+            <select
+              className="form-control w-full"
+              value={departmentId}
+              onChange={(e) => handleChangeDepartment(e.target.value)}
+            >
+              {departments.map((department) => (
+                <option key={department.id} value={department.id}>
+                  {department.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="w-1/2">
+            <div className="mb-2">ฝ่าย</div>
+            <select
+              className="form-control w-full"
+              value={sectionId}
+              onChange={(e) => setSectionId(e.target.value)}
+            >
+              {sections.map((section) => (
+                <option key={section.id} value={section.id}>
+                  {section.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="mt-5">Username</div>
         <input
           type="text"
           className="form-control"
@@ -231,7 +321,6 @@ export default function Page() {
             </option>
           ))}
         </select>
-
         <button className="btn btn-primary mt-5" onClick={handleSave}>
           <i className="fa-solid fa-check mr-2"></i>
           บันทึก
