@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import apiConfig from "../apiConfig";
 import Swal from "sweetalert2";
@@ -9,11 +9,7 @@ import Swal from "sweetalert2";
 export default function Sidebar() {
   const [userLevel, setUserLevel] = useState("");
 
-  useEffect(() => {
-    fetchUserLevel();
-  }, []);
-
-  const fetchUserLevel = async () => {
+  const fetchUserLevel = useCallback(async () => {
     try {
       const token = localStorage.getItem(apiConfig.tokenKey);
       const response = await axios.get(`${apiConfig.apiUrl}/api/user/level`, {
@@ -26,7 +22,11 @@ export default function Sidebar() {
     } catch (error) {
       handleAxiosError(error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchUserLevel();
+  }, [fetchUserLevel]);
 
   const handleAxiosError = (error: unknown) => {
     if (axios.isAxiosError(error)) {
