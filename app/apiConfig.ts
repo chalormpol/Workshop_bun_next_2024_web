@@ -1,7 +1,7 @@
 import Swal from "sweetalert2";
 
 export const apiConfig = {
-  apiUrl: "http://localhost:3001",
+  apiUrl: "https://workshopbunnext2024api-production.up.railway.app/",
   tokenKey: "token_bun_service",
   confirmDialog: () => {
     return Swal.fire({
