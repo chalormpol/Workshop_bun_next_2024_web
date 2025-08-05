@@ -6,7 +6,9 @@ import axios from "axios";
 import { apiConfig } from "@/app/apiConfig";
 
 export default function IncomeReportPage() {
-  const [startDate, setStartDate] = useState(dayjs().format("YYYY-MM-DD"));
+  const [startDate, setStartDate] = useState(
+    dayjs().subtract(14, "day").format("YYYY-MM-DD")
+  );
   const [endDate, setEndDate] = useState(dayjs().format("YYYY-MM-DD"));
   const [listIncome, setListIncome] = useState<IncomeReport[]>([]);
 
@@ -59,7 +61,7 @@ export default function IncomeReportPage() {
             <div className="w-[200px]">
               <button
                 className="btn btn-primary"
-                style={{ marginTop: "3px" }}
+                style={{ marginTop: "5px" }}
                 onClick={fetchIncome}
               >
                 <i className="fa-solid fa-magnifying-glass mr-3"></i>
@@ -81,19 +83,35 @@ export default function IncomeReportPage() {
               </tr>
             </thead>
             <tbody>
-              {listIncome.map((item: IncomeReport) => (
-                <tr key={item.id}>
-                  <td>{item.customerName}</td>
-                  <td>{item.customerPhone}</td>
-                  <td>{item.deviceName}</td>
-                  <td>{dayjs(item.createdAt).format("DD/MM/YYYY")}</td>
-                  <td>{dayjs(item.payDate).format("DD/MM/YYYY")}</td>
-                  <td>{item.solving}</td>
-                  <td style={{ textAlign: "right" }}>
-                    {item.amount.toLocaleString()}
-                  </td>
-                </tr>
-              ))}
+              {listIncome.length > 0 &&
+                listIncome.map((item: IncomeReport) => (
+                  <tr key={item.id}>
+                    <td>{item.customerName}</td>
+                    <td>{item.customerPhone}</td>
+                    <td>{item.deviceName}</td>
+                    <td>{dayjs(item.createdAt).format("DD/MM/YYYY")}</td>
+                    <td>{dayjs(item.payDate).format("DD/MM/YYYY")}</td>
+                    <td>{item.solving}</td>
+                    <td style={{ textAlign: "right" }}>
+                      {item.amount.toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
+              <tr>
+                <td colSpan={4}></td>
+                <td colSpan={2}>
+                  <b style={{ marginRight: "10px" }}>ระยะเวลา :</b>
+                  {dayjs(endDate).diff(dayjs(startDate), "day") === 0
+                    ? "วันนี้"
+                    : `${dayjs(endDate).diff(dayjs(startDate), "day")} วัน`}
+                </td>
+                <td style={{ textAlign: "right" }}>
+                  <b style={{ marginRight: "10px" }}>รายได้ทั้งหมด</b>
+                  {listIncome
+                    .reduce((acc, item) => acc + item.amount, 0)
+                    .toLocaleString()}
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

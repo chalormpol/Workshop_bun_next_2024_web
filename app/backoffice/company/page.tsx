@@ -27,12 +27,14 @@ export default function CompanyPage() {
         headers: headers,
       });
 
-      setName(response.data.name ?? "");
-      setAddress(response.data.address ?? "");
-      setPhone(response.data.phone ?? "");
-      setEmail(response.data.email ?? "");
-      setFacebook(response.data.facebookPage ?? "");
-      setTaxCode(response.data.taxCode ?? "");
+      if (response.data.id !== undefined) {
+        setName(response.data.name ?? "");
+        setAddress(response.data.address ?? "");
+        setPhone(response.data.phone ?? "");
+        setEmail(response.data.email ?? "");
+        setFacebook(response.data.facebookPage ?? "");
+        setTaxCode(response.data.taxCode ?? "");
+      }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         const msg =
